@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+    <head>
+        <title>HL7 Visualizer</title>
+        <link href="resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="resources/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+        <script src="resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="resources/js/data.types.js" type="text/javascript"></script>
+        <script src="resources/js/parser.js" type="text/javascript"></script>
+        <script src="resources/js/definition.handler.js" type="text/javascript"></script>
+        <style type="text/css">
+            body { padding: 60px 0px 10px 0px; }
+            .component { padding: 0px 3px; }
+            .component:hover { background-color: #FFFF00; cursor: default; box-shadow: 0px 0px 5px #666; border-radius: 3px; }
+            .component[data-content]:hover { background-color: #0CFF2A; cursor: pointer;  }
+
+            #inputHl7 { width: 99%; height: 36px; font-family: Courier New, Courier New, monospace; margin: 0px; }
+        </style>
+        <script type="text/javascript">
+            $(function(){
+                $("#inputHl7").change(function(){
+                    var val = $(this).val();
+                    parseMessage(val, loadAndAttachDefinition);
+                }).blur(function() {
+                    $(this).animate({
+                        height: 36
+                    }, function() {
+                        $(this).css({position: "static", width: "99%"});
+                    });
+                }).focus(function() {
+                    var w = $(this).width();
+                    $(this).animate({
+                        height: 286
+                    }).css({position: "absolute", width: w});
+                });
+                
+                // Drop support
+                $("#fileDrop").bind("drop", function(event) {
+                    // Prevent default
+                    event.stopPropagation();
+                    event.preventDefault();
+                    
+                    // Clean
+                    $("#inputHl7").val("");
+                
+                    var e = event.originalEvent;
+                    var files = e.dataTransfer.files;
+                    var count = files.length;
+                    console.debug("Handling "+count+" dropped files");
+                    if (count > 0) {
+                        var reader = new FileReader();
+                        // Reader handlers
+                        reader.onloadend = function(e) {
+                            console.debug("Loaded file with size " + e.total)
+                            $("#inputHl7").val(e.target.result);
+                            parseMessage(e.target.result, loadAndAttachDefinition);
+                        };
+                        
+                        // Read to dropped file
+                        reader.readAsText(files[0]);
+                    }
+                });
+                
+            }); // end on load
+            
+            function loadAndAttachDefinition(container) {
+                // Get version
+                var version = $(".segment.msh .field:eq(11) .component:eq(0)", container).text().trim();
+                console.log("Extracted version: " + version);
+                
+                // Attach field definitions
+                attachDefinitionByVersion(version);
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <div class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container-fluid">
+                        <a class="brand" href="./">HL7 Visualizer</a>
+
+                        <ul class="nav pull-right">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container-fluid">
+            <div class="row-fluid" style="margin: 0px 0px 20px 0px">
+                <div class="span6">
+                    <div class="row-fluid">
+                        <div class="span6">
+                            <h4>Drag &amp; Drop</h4>
+                            <p>Drop your HL7 file into the box.</p>                        
+                        </div>
+                        <div class="span6">
+                            <div style="width:100%; height: 38px; border: 2px dashed #eee; padding: 2px; border-radius: 5px; background: #fff;" id="fileDrop">
+                                <div style="background-color: #eee; height: 100%; border-radius: 3px;">
+                                    <div style="padding: 10px 0px 0px 0px; text-align: center; font-weight: bold; font-size: 16px; color: #ccc;">Drop File Here!</div>
+                                </div>
+                            </div>                        
+                        </div>
+                    </div>
+                </div>
+                <div class="span6">
+                    <form style="margin: 0px;">
+                        <div class="row-fluid">
+                            <div class="span4">
+                                <h4>Manual Input</h4>
+                                <p>Type the HL7 into the text box.</p>
+                            </div>
+                            <div class="span8">
+                                <textarea id="inputHl7" placeholder="HL7 Message"></textarea>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span12">
+                    <div id="parsedHl7" style="min-height: 300px; font-size: 12px; font-family: Courier New, Courier New, monospace; white-space: nowrap; text-wrap: avoid; overflow-x:auto; padding: 3px 0px 10px 3px;"></div>
+                </div>
+            </div>
+            <hr />
+            <footer>
+                <p><small>Created by <a href="http://www.uniqueculture.net" target="_blank">Sergei Izvorean</a>. For the benefit of <a href="http://www.wpahs.org">West Penn Allegheny Health System</a></small></p>
+            </footer>
+        </div>
+    </body>
+</html>
