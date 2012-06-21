@@ -45,6 +45,9 @@ function attachDefinition(definition) {
                 console.warn("Defined field with index "+fieldIndex+" in "+segment.name+" was not found");
                 continue;
             }
+            
+            // Build XML path
+            var xmlPath = [segment.name.toUpperCase(), fieldIndex];
 
             if (typeof field.components === "undefined") {
                 // Check if field has a data type defined
@@ -62,41 +65,52 @@ function attachDefinition(definition) {
             if (typeof field.components === "undefined") {
                 // Field always has at least one component even if not defined in definition
                 // Assign field description as component title
-                $(".component", $field).attr("title", field.name + " [Field: " + fieldIndex + "]");
+                $(".component", $field).attr("title", field.name + " ["+ xmlPath.join(".") +"]");
             } else {
-                for (var componentIndex in field.components) {
-                    var component = field.components[componentIndex];
-                    var $component = $(".component:eq("+componentIndex+")", $field);
-                    if ($component.size() == 0) {
-                        console.warn("Defined component with index "+componentIndex+" in "+segment.name+"."+ fieldIndex +" was not found");
-                        continue;
-                    }
+                // For each repetition we need to set same component descriptions
+                var $repetitions = $(".repetition", $field);
+                $repetitions.each(function(i) {
+                    var $repetition = $(this);
+                    for (var componentIndex in field.components) {
+                        var component = field.components[componentIndex];
+                        var $component = $(".component:eq("+componentIndex+")", $repetition);
+                        if ($component.size() == 0) {
+                            console.warn("Defined component with index "+componentIndex+" in "+segment.name+"."+ fieldIndex +" was not found");
+                            continue;
+                        }
 
-                    $component.attr("title", field.name + " > " + component.name + " [Field: " + fieldIndex + "]");
+                        // Add component index to the path
+                        xmlPath.push(parseInt(componentIndex)+1);
+                        // Assign tooltip text
+                        $component.attr("title", field.name + " &rsaquo; " + component.name + " ["+ xmlPath.join(".") +"]");
                     
-                    // See if component has value descriptions
-                    if (typeof(component.values) !== "undefined") {
-                        var value = $component.text().trim();
-                        console.log("Searching for component value description: " + value);
+                        // See if component has value descriptions
+                        if (typeof(component.values) !== "undefined") {
+                            var value = $component.text().trim();
+                            console.log("Searching for component value description: " + value);
                         
-                        var valueIndex = -1;
-                        // Search for value
-                        for (var searchIndex in component.values) {
-                            var searchValue = component.values[searchIndex];
-                            if (searchValue.value == value) {
-                                valueIndex = searchIndex;
-                                break;
+                            var valueIndex = -1;
+                            // Search for value
+                            for (var searchIndex in component.values) {
+                                var searchValue = component.values[searchIndex];
+                                if (searchValue.value == value) {
+                                    valueIndex = searchIndex;
+                                    break;
+                                }
+                            }
+                        
+                            if (valueIndex !== -1) {
+                                $component.attr("data-popover-title", field.name + " > " + component.name);
+                                $component.attr("data-content", "<strong>"+ value +"</strong> - " + component.values[valueIndex].description);
+                            } else {
+                                console.warn("Undefined component value " + value + " for " + field.name + " > " + component.name);
                             }
                         }
                         
-                        if (valueIndex !== -1) {
-                            $component.attr("data-popover-title", field.name + " > " + component.name);
-                            $component.attr("data-content", "<strong>"+ value +"</strong> - " + component.values[valueIndex].description);
-                        } else {
-                            console.warn("Undefined component value " + value + " for " + field.name + " > " + component.name);
-                        }
+                        // Remove the component that was just added to allow for multiple components
+                        xmlPath.pop();
                     }
-                }
+                });
             }
         }
     }
@@ -112,6 +126,8 @@ function attachDefinition(definition) {
         $(this).popover('show');
     });
     
+    
+    var lastSelected = null;
     $(".component").hover(function() {
         $(this).tooltip('show');
         if ($(this).attr("data-content")) {
@@ -122,5 +138,13 @@ function attachDefinition(definition) {
         if ($(this).attr("data-content")) {
             $(this).popover('hide');
         }
+    }).click(function(){
+        if (lastSelected != null) {
+            lastSelected.removeClass("selected");
+        }
+        
+        var $this = $(this);
+        $this.addClass("selected");
+        lastSelected = $this;
     });
 }

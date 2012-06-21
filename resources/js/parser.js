@@ -6,11 +6,11 @@ String.prototype.trim = function() {
 function parseMessage(content, fn) {
     // Default separators not defined in a message
     var separators = [
-    { 
-        character: /[\n\r]/g,
-        escapeReplace: "",
-        wrap: $("<div />").addClass("segment")
-    },
+        { 
+            character: /[\n\r]/g,
+            escapeReplace: "",
+            wrap: $("<div />").addClass("segment")
+        },
     ];
     // Parsed message container
     var container = $("#parsedHl7");
