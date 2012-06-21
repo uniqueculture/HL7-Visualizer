@@ -24,7 +24,14 @@ DataTypes = {
             { name: "Check Digit" },
             { name: "Check Digit Scheme" },
             { name: "Assigning Authority" },
-            { name: "Identifier Type Code" },
+            { 
+                name: "Identifier Type Code",
+                values: [
+                    { value: "PN", description: "Person number" },
+                    { value: "MR", description: "Medical record number" },
+                    { value: "SS", description: "Social Security number" }
+                ]
+            },
             { name: "Assigning Facility" },
             { name: "Effective Date" },
             { name: "Expiration Date" },
@@ -98,6 +105,39 @@ DataTypes = {
             { name: "Building" },
             { name: "Floor" },
             { name: "Location Description" }
+        ]
+    },
+    
+    pt: {
+        name: "Processing type",
+        components: [
+            { 
+                name: "ID", 
+                values: [
+                    { value: "D", description: "Debugging" } , 
+                    { value: "P", description: "Production" },
+                    { value: "T", description: "Training" }
+                ]
+            },
+            { name: "Mode" }
+        ]
+    },
+    
+    tq: {
+        name: "Quantity and timing",
+        components: [
+            { name: "Quantity" },
+            { name: "Interval" },
+            { name: "Duration" },
+            { name: "Start Date/Time" },
+            { name: "End Date/Time" },
+            { name: "Priority" },
+            { name: "Condition" },
+            { name: "Text" },
+            { name: "Conjunction" },
+            { name: "Order Sequencing" },
+            { name: "Occurrence Duration" },
+            { name: "Total Occurrences" }
         ]
     },
     
