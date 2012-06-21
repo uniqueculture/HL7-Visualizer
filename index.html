@@ -4,19 +4,14 @@
         <title>HL7 Visualizer</title>
         <link href="resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
         <link href="resources/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+        <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+        <link href="resources/css/style.css" rel="stylesheet" />
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
         <script src="resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="resources/js/data.types.js" type="text/javascript"></script>
         <script src="resources/js/parser.js" type="text/javascript"></script>
         <script src="resources/js/definition.handler.js" type="text/javascript"></script>
-        <style type="text/css">
-            body { padding: 60px 0px 10px 0px; }
-            .component { padding: 0px 3px; }
-            .component:hover { background-color: #FFFF00; cursor: default; box-shadow: 0px 0px 5px #666; border-radius: 3px; }
-            .component[data-content]:hover { background-color: #0CFF2A; cursor: pointer;  }
-
-            #inputHl7 { width: 99%; height: 36px; font-family: Courier New, Courier New, monospace; margin: 0px; }
-        </style>
         <script type="text/javascript">
             $(function(){
                 $("#inputHl7").change(function(){
@@ -40,9 +35,6 @@
                     // Prevent default
                     event.stopPropagation();
                     event.preventDefault();
-                    
-                    // Clean
-                    $("#inputHl7").val("");
                 
                     var e = event.originalEvent;
                     var files = e.dataTransfer.files;
@@ -53,14 +45,18 @@
                         // Reader handlers
                         reader.onloadend = function(e) {
                             console.debug("Loaded file with size " + e.total)
-                            $("#inputHl7").val(e.target.result);
+                            $("#inputHl7").val(e.target.result.trim());
                             parseMessage(e.target.result, loadAndAttachDefinition);
                         };
                         
                         // Read to dropped file
                         reader.readAsText(files[0]);
                     }
-                });
+                    
+                    return false;
+                }).bind("dragover", function(event) {
+                    return false;
+                })
                 
             }); // end on load
             
@@ -121,7 +117,7 @@
             </div>
             <div class="row-fluid">
                 <div class="span12">
-                    <div id="parsedHl7" style="min-height: 300px; font-size: 12px; font-family: Courier New, Courier New, monospace; white-space: nowrap; text-wrap: avoid; overflow-x:auto; padding: 3px 0px 10px 3px;"></div>
+                    <div id="parsedHl7" style="color: #bbb; min-height: 300px; font-size: 14px; font-family: 'Droid Sans Mono', sans-serif; white-space: nowrap; text-wrap: avoid; overflow-x:auto; padding: 3px 0px 10px 3px;"></div>
                 </div>
             </div>
             <hr />
@@ -129,7 +125,7 @@
                 <p><small>This tool is solely based on HTML5 capabilities. Check out source code on <a href="http://github.com/uniqueculture/HL7-Visualizer" target="_blank">GitHub</a>.</small></p>
             </footer>
         </div>
-        
+
         <!-- GitHub Ribbon -->
         <img style="z-index: 1040; position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub" usemap="#githubRibbon" />
         <map name="githubRibbon">

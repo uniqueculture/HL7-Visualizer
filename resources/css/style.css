@@ -1,0 +1,83 @@
+/* 
+    Document   : style.css
+    Created on : Jun 15, 2012, 1:53:23 PM
+    Author     : sizvorea
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+body { padding: 60px 0px 10px 0px; }
+
+.tooltip.in {
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+}
+
+.segment { 
+    margin-bottom: 7px; 
+}
+
+.segment .field:first-child {
+    font-weight: bold;
+}
+
+.component { padding: 1px 4px; color: #000; border-radius: 3px; }
+
+.component.selected {
+    background-image: linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
+    background-image: -o-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
+    background-image: -moz-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
+    background-image: -webkit-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
+    background-image: -ms-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #CFCFCF),
+        color-stop(0.7, #EDEDED)
+        );
+    box-shadow: 0px 0px 5px #333; 
+    border:none;  
+}
+
+.component:hover,
+.component.selected:hover { 
+    background-image: linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
+    background-image: -o-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
+    background-image: -moz-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
+    background-image: -webkit-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
+    background-image: -ms-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #EED200),
+        color-stop(0.7, #FCFC00)
+        ); 
+    cursor: default; 
+    box-shadow: 0px 0px 5px #333; 
+}
+
+.component[data-content] { border-bottom: 1px #ccc dotted; }
+.component[data-content].selected { border: none; }
+.component[data-content]:hover { 
+    background-image: linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
+    background-image: -o-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
+    background-image: -moz-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
+    background-image: -webkit-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
+    background-image: -ms-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0, #00D115),
+        color-stop(0.7, #00FF1A)
+        );
+    cursor: pointer; 
+    border:none;  
+}
+
+#inputHl7 { width: 99%; height: 36px; font-family: "Courier New", "Courier New", monospace; margin: 0px; }
