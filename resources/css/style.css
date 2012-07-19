@@ -13,17 +13,48 @@ body { padding: 60px 0px 10px 0px; }
     filter: alpha(opacity=90);
 }
 
-.segment { 
+#parsedHl7 .segment { 
     margin-bottom: 7px; 
+    clear:both;
+    margin-left: 30px;
 }
 
-.segment .field:first-child {
+#parsedHl7 .segment .field:first-child {
     font-weight: bold;
+    position: absolute;
+    left:15px;
+    background: #fff;
 }
 
-.component { padding: 1px 4px; color: #000; border-radius: 3px; }
+#parsedHl7 .field {
+    display: inline-table; 
+    text-align: center; 
+    vertical-align: top;
+    border: 1px dashed transparent;
+    border-radius: 3px;
+    padding: 0px 0px 1px 0px;
+}
 
-.component.selected {
+#parsedHl7 .field:hover {
+    border-color: #ccc;
+}
+
+#parsedHl7 .field .count {
+    /*display: table-row;
+    display: table-cell;*/
+    vertical-align: top;
+    font-size: 9px;
+    line-height: 14px;
+    color:#aaa;
+    padding: 0px 3px 0px 3px;
+    display:none; /* Not visiable by default */
+    
+}
+
+#parsedHl7 .component { padding: 1px 4px; color: #000; border-radius: 3px; }
+
+#parsedHl7 .component.selected {
+    background: #CFCFCF;
     background-image: linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
     background-image: -o-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
     background-image: -moz-linear-gradient(bottom, #CFCFCF 0%, #EDEDED 70%);
@@ -41,8 +72,9 @@ body { padding: 60px 0px 10px 0px; }
     border:none;  
 }
 
-.component:hover,
-.component.selected:hover { 
+#parsedHl7 .component:hover,
+#parsedHl7 .component.selected:hover { 
+    background: #fcfc00;
     background-image: linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
     background-image: -o-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
     background-image: -moz-linear-gradient(bottom, #EED200 0%, #FCFC00 70%);
@@ -60,9 +92,10 @@ body { padding: 60px 0px 10px 0px; }
     box-shadow: 0px 0px 5px #333; 
 }
 
-.component[data-content] { border-bottom: 1px #ccc dotted; }
-.component[data-content].selected { border: none; }
-.component[data-content]:hover { 
+#parsedHl7 .component[data-content] { border-bottom: 1px #ccc dotted; }
+#parsedHl7 .component[data-content].selected { border: none; }
+#parsedHl7 .component[data-content]:hover { 
+    background: #00FF1A;
     background-image: linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
     background-image: -o-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
     background-image: -moz-linear-gradient(bottom, #00D115 0%, #00FF1A 70%);
@@ -80,4 +113,57 @@ body { padding: 60px 0px 10px 0px; }
     border:none;  
 }
 
-#inputHl7 { width: 99%; height: 36px; font-family: "Courier New", "Courier New", monospace; margin: 0px; }
+#inputHl7 { width: 99%; height: 34px; font-family: "Courier New", "Courier New", monospace; margin: 0px; }
+
+/**
+ * When the segment is within a modal window
+ */
+
+
+#simplemodal-data > .separator {
+    display: none;
+}
+
+#simplemodal-data .field {
+    display:block;
+    clear:both;
+    overflow: hidden;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #444;
+}
+
+#simplemodal-data .field:first-child {
+    font-size: 16px;
+    padding-bottom: 10px;
+    font-weight: bold;
+    color:#fff;
+}
+
+#simplemodal-data .field .count {
+    display: block;
+    width:10%;
+    float: left;
+}
+
+#simplemodal-data .field .repetition {
+    display: block;
+    width:54%;
+    float: left;
+    color:#fff;
+}
+
+#simplemodal-data .field > .separator {
+    float:left;
+    display: block;
+}
+
+#simplemodal-data .field .name {
+    display: block;
+    width:34%;
+    float: left;
+}
+
+#simplemodal-data .field:first-child .name {
+    display: none;
+}

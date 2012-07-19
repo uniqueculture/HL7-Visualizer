@@ -4,22 +4,30 @@
         <title>HL7 Visualizer</title>
         <link href="resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
         <link href="resources/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+        <link href="resources/modal/css/basic.css" rel="stylesheet" />
         <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
         <link href="resources/css/style.css" rel="stylesheet" />
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+        <!--[if lt IE 9]>
+            <link href="resources/modal/css/basic_ie.css" rel="stylesheet" />
+            <link href="resources/css/style_ie.css" rel="stylesheet" />
+        <![endif]-->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js" type="text/javascript"></script>
         <script src="resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="resources/modal/js/jquery.simplemodal.js" type="text/javascript"></script>
         <script src="resources/js/data.types.js" type="text/javascript"></script>
         <script src="resources/js/parser.js" type="text/javascript"></script>
         <script src="resources/js/definition.handler.js" type="text/javascript"></script>
+        <script src="resources/js/console-stub.js" type="text/javascript"></script>
         <script type="text/javascript">
             $(function(){
                 $("#inputHl7").change(function(){
                     var val = $(this).val();
                     parseMessage(val, loadAndAttachDefinition);
+                    $(this).val(val.trim());
                 }).blur(function() {
                     $(this).animate({
-                        height: 36
+                        height: 34
                     }, function() {
                         $(this).css({position: "static", width: "99%"});
                     });
@@ -31,20 +39,44 @@
                 });
                 
                 // Drop support
-                $("#fileDrop").bind("drop", function(event) {
+                $("html").bind("drop", function(event) {
                     // Prevent default
                     event.stopPropagation();
                     event.preventDefault();
                 
                     var e = event.originalEvent;
-                    var files = e.dataTransfer.files;
+                    var files = e.dataTransfer.files || [];
+                    if (files == null) {
+                        alert("Sorry, but your browser is not supported yet.");
+                        return;
+                    }
+                    
                     var count = files.length;
-                    console.debug("Handling "+count+" dropped files");
-                    if (count > 0) {
+                    if (count == 0) {
+                        // Maybe some plain text was dropped
+                        console.log("Handling plain content drop");
+                        
+                        var data;
+                        if ($.browser.msie) {
+                            data = e.dataTransfer.getData("Text");
+                        } else {
+                            data = e.dataTransfer.getData("text/plain");
+                        }
+                        // Returns null in IE, an empty string in Firefox and undefined in Google Chrome and Safari.
+                        if (typeof(data) != "undefined" &&  data != null && data != "") {
+                            console.log("Plain text with size " + data.length);
+
+                            $("#inputHl7").val(data.trim());
+                            parseMessage(data.trim(), loadAndAttachDefinition);
+                        }
+                    } else {
+                        // Process dropped file
+                        console.debug("Handling "+count+" dropped files");
                         var reader = new FileReader();
                         // Reader handlers
                         reader.onloadend = function(e) {
-                            console.debug("Loaded file with size " + e.total)
+                            console.debug("Loaded file with size " + e.total);
+                            
                             $("#inputHl7").val(e.target.result.trim());
                             parseMessage(e.target.result, loadAndAttachDefinition);
                         };
@@ -55,18 +87,49 @@
                     
                     return false;
                 }).bind("dragover", function(event) {
+                    event.stopPropagation(); 
+                    event.preventDefault();
                     return false;
-                })
+                }).bind("dragenter", function(event) {
+                    event.stopPropagation(); 
+                    event.preventDefault();
+                    return false;
+                });
+                
+                $("#toggleFieldNumbers").click(toggleFieldNumbers);
                 
             }); // end on load
+            
+            
             
             function loadAndAttachDefinition(container) {
                 // Get version
                 var version = $(".segment.msh .field:eq(11) .component:eq(0)", container).text().trim();
                 console.log("Extracted version: " + version);
                 
+                showFieldNumbers();
+                
                 // Attach field definitions
                 attachDefinitionByVersion(version);
+            }
+            
+            var fieldNumbersVisible = false;
+            function toggleFieldNumbers() {
+                var first = $(".field .count:eq(0):visible");
+                if (first.size() > 0) {
+                    // Numbers are visible, hide them
+                    fieldNumbersVisible = false;
+                    $(".count").hide();
+                } else {
+                    fieldNumbersVisible = true;
+                    $(".count").show();
+                }
+            }
+            
+            function showFieldNumbers() {
+                if (fieldNumbersVisible) {
+                    $(".count").show();
+                }
             }
         </script>
     </head>
@@ -85,25 +148,11 @@
         </header>
         <div class="container-fluid">
             <div class="row-fluid" style="margin: 0px 0px 20px 0px">
-                <div class="span6">
-                    <div class="row-fluid">
-                        <div class="span6">
-                            <h4>Drag &amp; Drop</h4>
-                            <p>Drop your HL7 file into the box.</p>                        
-                        </div>
-                        <div class="span6">
-                            <div style="width:100%; height: 38px; border: 2px dashed #eee; padding: 2px; border-radius: 5px; background: #fff;" id="fileDrop">
-                                <div style="background-color: #eee; height: 100%; border-radius: 3px;">
-                                    <div style="padding: 10px 0px 0px 0px; text-align: center; font-weight: bold; font-size: 16px; color: #ccc;">Drop File Here!</div>
-                                </div>
-                            </div>                        
-                        </div>
-                    </div>
-                </div>
-                <div class="span6">
+                <div class="span8">
                     <form style="margin: 0px;">
                         <div class="row-fluid">
                             <div class="span4">
+                                <img src="resources/img/keyboard.png" style="float: left; margin-right: 10px;" />
                                 <h4>Manual Input</h4>
                                 <p>Type the HL7 into the text box.</p>
                             </div>
@@ -114,7 +163,21 @@
 
                     </form>
                 </div>
+                <div class="span4">
+                    <div class="row-fluid">
+                        <div class="span11">
+                            <img src="resources/img/document_move.png" style="float: left; margin-right: 10px;" />
+                            <h4>Drag &amp; Drop Anywhere</h4>
+                            <p>Drop a file or text (Ctrl + drag&amp;drop) on the page</p>                        
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+        <div style="padding:10px; margin-bottom: 20px;">
+            <a class="btn btn-mini" id="toggleFieldNumbers">Toggle field count</a>
+        </div>
+        <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span12">
                     <div id="parsedHl7" style="color: #bbb; min-height: 300px; font-size: 14px; font-family: 'Droid Sans Mono', sans-serif; white-space: nowrap; text-wrap: avoid; overflow-x:auto; padding: 3px 0px 10px 3px;"></div>
