@@ -85,7 +85,19 @@
             "fields": [
                 { "name": "Segment Name" },
                 { "name": "Set ID" },
-                { "name": "Patient Class" },
+                { 
+					"name": "Patient Class",
+					"components": [
+						{  
+							"name": "Class",
+							"values": [
+								{ "value": "O", "description": "Outpatient" },
+								{ "value": "I", "description": "Inpatient" },
+								{ "value": "E", "description": "Emergency" }
+							]
+						}
+					]
+				},
                 { "name": "Current Pt Location", "dataType": "PL" },
                 { "name": "Admission Type" },
                 { "name": "Preadmit Number", "dataType": "CX" },
@@ -342,7 +354,42 @@
             "fields": [
                 { "name": "Segment Name" },
                 { "name": "Set ID" },
-                { "name": "Value Type" },
+                { 
+					"name": "Value Type",
+					"components": [
+						{
+							"name": "Type",
+							"values": [
+								{ "value": "AD", "description": "Address" },
+								{ "value": "CF", "description": "Coded Element With Formatted Values" },
+								{ "value": "CK", "description": "Composite ID With Check Digit" },
+								{ "value": "CN", "description": "Composite ID And Name" },
+								{ "value": "CP", "description": "Composite Price" },
+								{ "value": "CE", "description": "Coded Entry" },
+								{ "value": "CWE", "description": "Coded Entry" },
+								{ "value": "CX", "description": "Extended Composite ID With Check Digit" },
+								{ "value": "DT", "description": "Date" },
+								{ "value": "DTM", "description": "Time Stamp (Date &amp; Time)" },
+								{ "value": "ED", "description": "Encapsulated Data" },
+								{ "value": "FT", "description": "Formatted Text (Display)" },
+								{ "value": "MO", "description": "Money " },
+								{ "value": "NM", "description": "Numeric" },
+								{ "value": "PN", "description": "Person Name" },
+								{ "value": "RP", "description": "Reference Pointer" },
+								{ "value": "SN", "description": "Structured Numeric" },
+								{ "value": "ST", "description": "String Data" },
+								{ "value": "TM", "description": "Time" },
+								{ "value": "TN", "description": "Telephone Number" },
+								{ "value": "TX", "description": "Text Data (Display)" },
+								{ "value": "XAD", "description": "Extended Address" },
+								{ "value": "XCN", "description": "Extended Composite Name And Number For Persons" },
+								{ "value": "XON", "description": "Extended Composite Name And Number For Organizations" },
+								{ "value": "XPN", "description": "Extended Person Name" },
+								{ "value": "XTN", "description": "Extended Telecommunications Number " }
+							]
+						}
+					]
+				},
                 { "name": "Observation Identifier", "dataType": "CE" },
                 { "name": "Observation Sub-ID" },
                 { "name": "Observation Value" },
@@ -449,6 +496,107 @@
                 { "name": "Entering Device" },
                 { "name": "Action By", "dataType": "XCN" }
             ]
-        }
+        }, {
+			"name": "ROL",
+			"fields": [
+				{ "name": "Role segment" },
+				{ "name": "Role Instance ID" },
+				{ 
+					"name": "Action Code",
+					"components": [
+						{
+							"name": "Code",
+							"values": [
+								{ "value": "AD", "description": "Add" },
+								{ "value": "CO", "description": "Correct" },
+								{ "value": "DE", "description": "Delete" },
+								{ "value": "LI", "description": "Link" },
+								{ "value": "UC", "description": "Unchanged" },
+								{ "value": "UN", "description": "Unlink" },
+								{ "value": "UP", "description": "Update" }
+							]
+						}
+					]
+				},
+				{ 
+					"name": "Role",
+					"components": [
+						{
+							"name": "Provider role",
+							"values": [
+								{ "value": "AD", "description": "Admitting" },
+								{ "value": "AT", "description": "Attending" },
+								{ "value": "CP", "description": "Consulting Provider" },
+								{ "value": "FHCP", "description": "Family Health Care Professional" },
+								{ "value": "PP", "description": "Primary Care Provider" },
+								{ "value": "RP", "description": "Referring Provider" },
+								{ "value": "RT", "description": "Referred to Provider" }
+							]
+						}
+					]
+				},
+				{ "name": "Role Person" },
+				{ "name": "Role Begin Date/Time" },
+				{ "name": "Role End Date/Time" },
+				{ "name": "Role Duration" },
+				{ "name": "Role Action Reason" }
+			]
+		}, {
+			"name": "MRG",
+			"fields": [
+				{ "name": "Merge segment" },
+				{ "name": "Prior Patient Identifier List", "dataType": "cx" },
+				{ "name": "Prior Alternate Patient ID", "dataType": "cx" },
+				{ "name": "Prior Patient Account Number", "dataType": "cx" },
+				{ "name": "Prior Patient ID", "dataType": "cx" },
+				{ "name": "Prior Visit Number", "dataType": "cx" },
+				{ "name": "Prior Alternate Visit ID", "dataType": "cx" },
+				{ "name": "Prior Patient Name", "dataType": "xpn" }
+			]
+		}, {
+			"name": "TXA",
+			"fields": [
+				{ "name": "Segment Name" },
+				{ "name": "Set ID" },
+				{ "name": "Document Type", "dataType": "IS" },
+				{ "name": "Document Content Presentation", "dataType": "ID" },
+				{ "name": "Activity Date/Time", "dataType": "TS" },
+				{ "name": "Primary Activity Provider Code/Name", "dataType": "CN" },
+				{ "name": "Origination Date/Time", "dataType": "TS" },
+				{ "name": "Transcription Date/Time", "dataType": "TS" },
+				{ "name": "Edit Date/Time", "dataType": "TS" },
+				{ "name": "Originator Code/Name", "dataType": "CN" },
+				{ "name": "Assigned Document Authenticator", "dataType": "CN" },
+				{ "name": "Transcriptionist Code/Name", "dataType": "CN" },
+				{ "name": "Unique Document Number", "dataType": "EI" },
+				{ "name": "Parent Document Number", "dataType": "EI" },
+				{ "name": "Placer Order Number", "dataType": "EI" },
+				{ "name": "Filler Order Number", "dataType": "EI" },
+				{ "name": "Unique Document File Name", "dataType": "ST" },
+				{ 
+					"name": "Document Completion Status", 
+					"components": [
+						{  
+							"name": "Status",
+							"table": "0271_doc_completion_status"
+						}
+					]
+				},
+				{ "name": "Document Confidentiality Status", "dataType": "ID" },
+				{ 
+					"name": "Document Availability Status", 
+					"components": [
+						{  
+							"name": "Status",
+							"table": "0273_doc_availability_status"
+						}
+					]
+				},
+				{ "name": "Document Storage Status", "dataType": "ID" },
+				{ "name": "Document Change Reason", "dataType": "ST" },
+				{ "name": "Authentication Person, Time Stamp", "dataType": "PN" },
+				{ "name": "Distributed Copies (Code and Name of Recipients)", "dataType": "CN" }
+			]
+		}
     ]
 }

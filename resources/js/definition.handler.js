@@ -92,7 +92,7 @@ function attachDefinition(definition) {
             $field.attr("data-name", field.name);
             
             // Build XML path
-            var xmlPath = [segment.name.toUpperCase(), fieldIndex+1];
+            var xmlPath = [segment.name.toUpperCase(), (segment.name == "MSH" ? fieldIndex + 1 : fieldIndex)];
 
             // Attempt to populate field components based on type definition
             if (typeof field.components === "undefined") {

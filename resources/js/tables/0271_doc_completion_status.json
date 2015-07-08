@@ -1,0 +1,13 @@
+{
+	"values": [
+		{ "value": "AU", "description": "Authenticated" },
+		{ "value": "CA", "description": "Canceled" },
+		{ "value": "DI", "description": "Dictated" },
+		{ "value": "DO", "description": "Documented" },
+		{ "value": "IN", "description": "Incomplete" },
+		{ "value": "IP", "description": "In Progress" },
+		{ "value": "LA", "description": "Legally authenticated" },
+		{ "value": "PA", "description": "Pre-authenticated" },
+		{ "value": "PR", "description": "Preliminary" }
+	]
+}

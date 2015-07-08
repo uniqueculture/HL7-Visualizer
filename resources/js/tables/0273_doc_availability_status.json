@@ -1,0 +1,8 @@
+{
+	"values": [
+		{ "value": "AV", "description": "Available for patient care" },
+		{ "value": "CA", "description": "Deleted" },
+		{ "value": "OB", "description": "Obsolete" },
+		{ "value": "UN", "description": "Unavailable for patient care" }
+	]
+}
