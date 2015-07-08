@@ -92,7 +92,7 @@ function attachDefinition(definition) {
             $field.attr("data-name", field.name);
             
             // Build XML path
-            var xmlPath = [segment.name.toUpperCase(), fieldIndex];
+            var xmlPath = [segment.name.toUpperCase(), fieldIndex+1];
 
             // Attempt to populate field components based on type definition
             if (typeof field.components === "undefined") {
@@ -225,7 +225,11 @@ function attachUiEvents() {
     
     $(".segment .field:first-child").click(function(){
         $.modal($(this).parent().html(), {
-            overlayClose: true
+            overlayClose: true,
+			onShow: function(dialog) {
+				// Always show field counts within dialog
+				$(".count", dialog.data).show();
+			}
         });
         
         var $fields = $("#simplemodal-data .field");

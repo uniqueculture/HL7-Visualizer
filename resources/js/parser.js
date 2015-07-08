@@ -3,7 +3,7 @@ String.prototype.trim = function() {
     return this.replace(/^\s*/, '').replace(/\s*$/, '');
 }
 
-function parseMessage(content, fn) {
+function parseMessageToHtml(content, fn) {
     // Default separators not defined in a message
     var separators = [
         { 
@@ -37,7 +37,12 @@ function parseMessage(content, fn) {
     $("#parsedHl7").html(container.html());
                 
     // Set encoding charts back
-    $(".segment.msh .field:eq(1) .component").text(encodingChars);
+    $(".segment:eq(0) .field:eq(1) .component").text(encodingChars);
+	
+	// Fix the counts on first segment since first field is a separator, typically a pipe
+	$(".segment:eq(0) .field .count").each(function(){
+		this.innerText = parseInt(this.innerText) + 1;
+	});
                 
     if (typeof(fn) == "function") {
         fn(container);
@@ -123,7 +128,7 @@ function splitMessage(separators, separatorIndex, content, container) {
             // Field separator
             if (elementIndex > 0) {
                 // Add field count element
-                var $count = $("<span />").addClass("count").text(elementIndex);
+                var $count = $("<span />").addClass("count").text(parseInt(elementIndex));
                 elementContainer.prepend($count);
             }
         }
