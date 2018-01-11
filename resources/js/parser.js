@@ -138,3 +138,54 @@ function splitMessage(separators, separatorIndex, content, container) {
         }
     }
 }
+
+function getValueByHl7Path(path) {
+	var regex = /^([A-Z]{3})(\[\d+\])?((\.\d)+)/i
+	var match = regex.exec(path);
+	if (match == null) {
+		return null;
+	}
+	
+	var segment = match[1];
+	var segmentRepetition = match[2] ? parseInt(match[2]) : 0;
+	var fieldPath = match[3].substring(1);
+	var fieldPaths = fieldPath.split(".");
+	var $container = $("#parsedHl7");
+	
+	// Get the segment
+	var $segment = $(".segment[data-name="+ segment.toLowerCase() +"]", $container)[segmentRepetition];
+	if (!$segment) {
+		return null;
+	}
+	
+	var levels = [
+		{cls: "field"},
+		//{cls: "repetition"},
+		{cls: "component"},
+		{cls: "sub-component"}
+	];
+	
+	// Adjust field counts for MSH segment since first field is a pipe
+	if (segment.toLowerCase() != "msh") {
+		fieldPaths[0] = fieldPaths[0] + 1;
+	}
+	
+	var localContext = $segment;
+	for (var i = 0; i < fieldPaths.length; i++) {
+		var cls = levels[i].cls;
+		var $element = $("." + cls, localContext);
+		if (!$element) {
+			return null;
+		}
+		
+		var index = fieldPaths[i] - 1;
+		if (index < 0 || $element.size() < index) {
+			return null;
+		}
+		
+		localContext = $element[index];
+	}
+	
+	// Grab only deepest level
+	return $("." + levels[levels.length - 1].cls, localContext).text().trim();
+}

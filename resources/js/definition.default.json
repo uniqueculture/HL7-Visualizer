@@ -597,6 +597,15 @@
 				{ "name": "Authentication Person, Time Stamp", "dataType": "PN" },
 				{ "name": "Distributed Copies (Code and Name of Recipients)", "dataType": "CN" }
 			]
+		}, {
+			"name": "NTE",
+			"fields": [
+				{ "name": "Segment Name" },
+				{ "name": "Set ID" },
+				{ "name": "Source of Comment", "dataType": "ID" },
+				{ "name": "Comment", "dataType": "FT" },
+				{ "name": "Comment Type", "dataType": "CE" }
+			]
 		}
     ]
 }

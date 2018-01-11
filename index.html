@@ -7,12 +7,13 @@
         <link href="resources/modal/css/basic.css" rel="stylesheet" />
         <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
         <link href="resources/css/style.css" rel="stylesheet" />
         <!--[if lt IE 9]>
             <link href="resources/modal/css/basic_ie.css" rel="stylesheet" />
             <link href="resources/css/style_ie.css" rel="stylesheet" />
         <![endif]-->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js" type="text/javascript"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js" type="text/javascript"></script>
         <script src="resources/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="resources/modal/js/jquery.simplemodal.js" type="text/javascript"></script>
         <script src="resources/js/data.types.js" type="text/javascript"></script>
@@ -21,6 +22,7 @@
         <script src="resources/js/console-stub.js" type="text/javascript"></script>
         <script type="text/javascript">
 			var LOCAL_STORAGE_LAST_MSG_KEY = "lastMessageVisualized";
+			var LOCAL_STORAGE_RECENT_MSGS_KEY = "recentMessagesVisualized";
 		
             $(function(){
 			
@@ -97,25 +99,65 @@
                     return false;
                 });
                 
-                $("#toggleFieldNumbers").click(toggleFieldNumbers);
+                $("#checkbox-field-count").change(toggleFieldNumbers);
 				
 				// Get the last message that was parsed
-				var lastMessage = getLastMessage();
+				/*var lastMessage = getLastMessage();
 				if (lastMessage.length > 0) {
 					parseMessage(lastMessage);
+				}*/
+				
+				// Init the recents storage and update the view
+				var recents = initRecentMessageStorage();
+				showRecentMessages(recents);
+				
+				// Parse the first recent message
+				if (recents && recents.length > 0) {
+					parseMessage(recents[0].message, false);
 				}
+				
+				// Resize the HL7 div to screen size
+				resizeViewport();
                 
             }); // end on load
+			
+			// Update viewport on browser resize
+			$(window).resize(resizeViewport);
+			
+			function resizeViewport() {
+				/*var siblingsHeight = 0 + parseInt($("#content").css("paddingTop")) + parseInt($("#content").css("paddingBottom"));
+				$("#content").children().each(function() {
+					if ($(this).attr("id") != "parsedHl7") {
+						siblingsHeight += $(this).height() 
+							+ parseInt($(this).css("marginTop")) + parseInt($(this).css("marginBottom"))
+							+ parseInt($(this).css("paddingTop")) + parseInt($(this).css("paddingBottom"));
+					}
+				});
+				
+				console.info("Height " + siblingsHeight);
+				
+				$("#parsedHl7").height($(window).height() - siblingsHeight);
+				$("#parsedHl7").width($(window).width() - $("#sidebar").width() - 50);*/
+			}
             
-            function parseMessage(message) {
+            function parseMessage(message, isStoreRecent) {
 				// Set the value to currently parsed message
 				$("#inputHl7").val(message.trim());
 			
 				console.log("Parsing message to HTML with length " + message.length);
 				parseMessageToHtml(message, loadAndAttachDefinition);
 				
-				// Save the parsed message locally
-				storeLastMessage(message);
+				// Compose a name for the message
+				var name = getValueByHl7Path("MSH.9.1") + " " + getValueByHl7Path("MSH.9.2") + " - " + getValueByHl7Path("MSH.3") + " " + getValueByHl7Path("MSH.4");
+				if (name == null) {
+					name = "Message"; // TODO come up with a better name
+				}
+				
+				if (isStoreRecent === true || typeof(isStoreRecent) === "undefined") {
+					// Save the parsed message locally
+					var recents = storeRecentMessage(name, message);
+					showRecentMessages(recents);
+				}
 			}
             
             function loadAndAttachDefinition(container) {
@@ -148,88 +190,219 @@
                 }
             }
 			
-			function storeLastMessage(message){
-				if (typeof(localStorage) === "undefined") {
-					// Browser doesn't support local storage
-					return;
-				}
+			function showRecentMessages(recents) {
+				// Remove current recents
+				$("#recent-messages-list").empty();
 				
-				console.debug("Storing message with length " + message.length + " locally in key " + LOCAL_STORAGE_LAST_MSG_KEY);
-				localStorage.setItem(LOCAL_STORAGE_LAST_MSG_KEY, message);
+				for (var i = 0; i < recents.length; i++) {
+					var $li = $("<li />");
+					$("<a />").click(parseRecentMessage).attr("href", "#").data("index", i).appendTo($li).text(recents[i].name);
+					
+					$("#recent-messages-list").append($li);
+				}
 			}
 			
-			function getLastMessage() {
+			function parseRecentMessage(e) {
 				if (typeof(localStorage) === "undefined") {
 					// Browser doesn't support local storage
-					return "";
+					return false;
 				}
 				
+				var i = $(this).data("index");
+				console.debug("Parsing recent message number " + i);
+				
+				var recents = localStorage.getItem(LOCAL_STORAGE_RECENT_MSGS_KEY);
+				if (recents === null) {
+					console.warn("Local recent store doesn't exist. Please initialize");
+					return [];
+				}
+				
+				recents = JSON.parse(recents);
+				if (i < 0 || i > recents.length - 1) {
+					return false;
+				}
+				
+				parseMessage(recents[i].message, false);
+			}
+			
+			function storeRecentMessage(name, msg) {
+				if (typeof(localStorage) === "undefined") {
+					// Browser doesn't support local storage
+					return false;
+				}
+				
+				console.debug("Storing recent message of length " + msg.length);
+				
+				var recents = localStorage.getItem(LOCAL_STORAGE_RECENT_MSGS_KEY);
+				if (recents === null) {
+					console.warn("Local recent store doesn't exist. Please initialize");
+					return [];
+				}
+				
+				// Parse the json stored
+				recents = JSON.parse(recents);
+				
+				// Add the message
+				recents.unshift({
+					"name": name,
+					"message": msg,
+				});
+				
+				// Keep only recent 5
+				if (recents.length > 5) {
+					recents.pop();
+				}
+				
+				// Save the recents
+				localStorage.setItem(LOCAL_STORAGE_RECENT_MSGS_KEY, JSON.stringify(recents));
+				
+				return recents;
+			}
+			
+			/**
+			 * Move previosly stored last message into recent messages, and delete recent message
+			 */
+			function initRecentMessageStorage() {
+				if (typeof(localStorage) === "undefined") {
+					// Browser doesn't support local storage
+					return false;
+				}
+				
+				var recents = localStorage.getItem(LOCAL_STORAGE_RECENT_MSGS_KEY);
+				if (recents === null) {
+					// Initialize recents storage
+					recents = [];
+					localStorage.setItem(LOCAL_STORAGE_RECENT_MSGS_KEY, JSON.stringify(recents));
+				} else {
+					// Parse the json stored
+					recents = JSON.parse(recents);
+					// Show recents while we got them
+					showRecentMessages(recents);
+				}
+				
+				// Get the last message
 				console.debug("Getting last message from local storage with key " + LOCAL_STORAGE_LAST_MSG_KEY);
 				var msg = localStorage.getItem(LOCAL_STORAGE_LAST_MSG_KEY);
 				if (msg === null) {
-					console.warn("Got NULL message from local storage");
-					return "";
-				} else {
-					return msg;
+					return recents;
 				}
+				
+				// Move the message from last to recent and remove it
+				storeRecentMessage("Recent message", msg);
+				
+				// Remove the recent
+				localStorage.removeItem(LOCAL_STORAGE_LAST_MSG_KEY);
+				
+				return recents;
 			}
         </script>
     </head>
     <body>
-        <header>
-            <div class="navbar navbar-fixed-top">
-                <div class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="brand" href="./">HL7 Visualizer</a>
+		<div id="wrapper">
+			<div id="sidebar">
+				<header style="">
+					<div style="padding:30px;background: #1E88E5; color:white;">
+						<h3>HL7 Visualizer</h3>
+					</div>
+				</header>
+				<div id="sidebar-content" style="margin:30px;">
+					<div class="sidebar-section">
+						<h5>Recent Messages</h5>
+						<small class="muted">Local storage</small>
+						<ul id="recent-messages-list">
+							<!--<li><a href="#">ORM^R01 - JOHN DOE - 12/21/2017</a></li>
+							<li><a href="#">ADT^R01 - JANE DOE - 01/01/2017</a></li>
+							<li><a href="#">ADT^A08 - TOM SMITH - 04/21/2015</a></li>
+							<li><a href="#">ORM^R01 - JOHN DOE - 12/21/2017</a></li>-->
+						</ul>
+					</div>
+					<div class="sidebar-section">
+						<h5>Options</h5>
+						<ul>
+							<li>
+								<label for="checkbox-field-count">Show field count</label>
+								<label class="switch">
+								  <input type="checkbox" id="checkbox-field-count" />
+								  <span class="slider round"></span>
+								</label>
+							</li>
+							<!--<li>
+								<label for="checkbox-highlight">Highlight same values</label>
+								<label class="switch">
+								  <input type="checkbox" id="checkbox-highlight" />
+								  <span class="slider round"></span>
+								</label>
+							</li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="content-wrapper">
+				<div id="content-header">
+					<div class="container-fluid" style="margin: 30px 30px 30px 30px;">
+						<div class="row-fluid">
+							<div class="span8">
+								<form style="margin: 0px;">
+									<div class="row-fluid">
+										<div class="span4">
+											<img src="resources/img/keyboard.png" style="float: left; margin-right: 10px;" />
+											<h4>Manual Input</h4>
+											<p>Type the HL7 into the text box.</p>
+										</div>
+										<div class="span8">
+											<textarea id="inputHl7" placeholder="HL7 Message"></textarea>
+										</div>
+									</div>
 
-                        <ul class="nav pull-right">
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <div class="container-fluid">
-            <div class="row-fluid" style="margin: 0px 0px 20px 0px">
-                <div class="span8">
-                    <form style="margin: 0px;">
-                        <div class="row-fluid">
-                            <div class="span4">
-                                <img src="resources/img/keyboard.png" style="float: left; margin-right: 10px;" />
-                                <h4>Manual Input</h4>
-                                <p>Type the HL7 into the text box.</p>
-                            </div>
-                            <div class="span8">
-                                <textarea id="inputHl7" placeholder="HL7 Message"></textarea>
-                            </div>
-                        </div>
+								</form>
+							</div>
+							<div class="span4">
+								<div class="row-fluid">
+									<div class="span11">
+										<img src="resources/img/document_move.png" style="float: left; margin-right: 10px;" />
+										<h4>Drag &amp; Drop Anywhere</h4>
+										<p>Drop a file or text (Ctrl + drag&amp;drop) on the page</p>                        
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="content">
+					<div id="content-scroll">
+						<div id="parsedHl7"></div>
+					</div>
+				</div>
+				<div id="content-footer">
+					<div class="container-fluid" style="margin: 0px 30px 15px 30px;">
+						<div class="row-fluid">
+							<div class="span12">		
+							<footer style="margin-top:15px;">
+								<p><small>This tool is solely based on HTML5 capabilities. Check out source code on <a href="http://github.com/uniqueculture/HL7-Visualizer" target="_blank">GitHub</a>.</small></p>
+							</footer>
+							</div>
+						</div>
+					</div>
+				
+				</div>
+			</div>
+		
+		</div>
 
-                    </form>
-                </div>
-                <div class="span4">
-                    <div class="row-fluid">
-                        <div class="span11">
-                            <img src="resources/img/document_move.png" style="float: left; margin-right: 10px;" />
-                            <h4>Drag &amp; Drop Anywhere</h4>
-                            <p>Drop a file or text (Ctrl + drag&amp;drop) on the page</p>                        
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="padding:10px; margin-bottom: 20px;">
-            <a class="btn btn-mini" id="toggleFieldNumbers">Toggle field count</a>
-        </div>
-        <div class="container-fluid">
-            <div class="row-fluid">
-                <div class="span12">
-                    <div id="parsedHl7" style="color: #bbb; min-height: 300px; font-size: 14px; font-family: 'Droid Sans Mono', sans-serif; white-space: nowrap; text-wrap: avoid; overflow-x:auto; padding: 3px 0px 10px 3px;"></div>
-                </div>
-            </div>
-            <hr />
-            <footer>
-                <p><small>This tool is solely based on HTML5 capabilities. Check out source code on <a href="http://github.com/uniqueculture/HL7-Visualizer" target="_blank">GitHub</a>.</small></p>
-            </footer>
-        </div>
+	
+	
+		<!--<div style="display:flex; align-items:stretch; flex-direction: row;">
+			<div id="sidebar" style="min-width:280px; max-width: 280px; border-right: 1px solid #ebebeb">
+				
+			</div>
+			<div id="content" style="padding: 30px; background: #fafafa">
+				
+				
+				
+
+
+			</div>			
+		</div>-->
 
         <!-- GitHub Ribbon -->
         <img style="z-index: 1040; position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub" usemap="#githubRibbon" />
