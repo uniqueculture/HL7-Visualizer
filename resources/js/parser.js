@@ -140,7 +140,7 @@ function splitMessage(separators, separatorIndex, content, container) {
 }
 
 function getValueByHl7Path(path) {
-	var regex = /^([A-Z]{3})(\[\d+\])?((\.\d)+)/i
+	var regex = /^([A-Z]{3})(\[\d+\])?((\.\d+))/i
 	var match = regex.exec(path);
 	if (match == null) {
 		return null;
