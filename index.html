@@ -148,7 +148,7 @@
 				parseMessageToHtml(message, loadAndAttachDefinition);
 				
 				// Compose a name for the message
-				var name = getValueByHl7Path("MSH.9.1") + " " + getValueByHl7Path("MSH.9.2") + " - " + getValueByHl7Path("MSH.3") + " " + getValueByHl7Path("MSH.4");
+				var name = getValueByHl7Path("MSH.10") + ": " + getValueByHl7Path("MSH.9.1") + " " + getValueByHl7Path("MSH.9.2") + " - " + getValueByHl7Path("MSH.3") + " " + getValueByHl7Path("MSH.4");
 				if (name == null) {
 					name = "Message"; // TODO come up with a better name
 				}
